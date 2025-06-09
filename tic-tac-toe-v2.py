@@ -91,7 +91,15 @@ class TicTacToeEngine:
             else: 
                 action =    self.player_two.play(self.state)
             self.state =self.game.result(self.state,action)
-
+        self.display(self.state)
+        winner = self.game.winner(self.state)
+        
+        if winner =="o":
+            print("O won!")
+        elif winner =='x':
+            print("X won!")
+        else:
+            print("Match Draw!")
     def display(self,state):
         print(f"\n")
         print("Current Game")
@@ -114,7 +122,47 @@ class AIPlayer(IPlayer):
         super().__init__(name)
         self.game = game
     def play(self,state):
-        return self.game.actions(state)[0]
+        best_action = None
+        player = self.game.current_player(state)
+        best_value = float('inf') if player == self.name else - float('inf')
+        
+        actions = self.game.actions(state)
+        
+        for action in actions:
+            
+            new_state = self.game.result(state,action)
+            value = self.minMax(new_state)
+            
+            if player == self.name:
+                if value< best_value:
+                    best_value = value
+                    best_action = action
+            else:
+                if value> best_value:
+                    best_value = value
+                    best_action = action
+                 
+        return best_action
+    
+    def minMax(self,state):
+        if self.game.is_terminate(state):
+            return self.game.utility(state)
+        
+        actions = self.game.actions(state)
+        player = self.game.current_player(state)
+        best_value = float('inf') if player == self.name else - float('inf')
+        for action in actions:
+            new_state = self.game.result(state,action)
+            value = self.minMax(new_state)
+            if player == self.name:
+                if value< best_value:
+                    best_value = value
+            else:
+                if value> best_value:
+                    best_value = value
+        return best_value
+            
+            
     
     
 if __name__=="__main__":
